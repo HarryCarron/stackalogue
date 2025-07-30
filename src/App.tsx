@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import './App.css'
-import { Stack3D, Stack3DState } from './classes/Stack3D';
+import { Stack3D } from './classes/Stack3D';
 
 function App() {
 
@@ -14,10 +14,6 @@ function App() {
       canvas.current as HTMLCanvasElement,
       true);
 
-    stack3D.current.registerStateChangeHandler((state: typeof Stack3DState) => {
-      console.log('state:', state);
-    });
-    
     stack3D.current.init();
 
   }, []);

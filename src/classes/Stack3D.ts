@@ -120,6 +120,8 @@ export class Stack3D {
         renderer: THREE.WebGLRenderer,
         scene: THREE.Scene
     ): void {
+
+        new Promise<void>((resolve, reject) => {
         new EXRLoader().load(`/${this._id}.exr`, (texture) => {
 
             const pmremGenerator = new THREE.PMREMGenerator(renderer);
@@ -131,6 +133,10 @@ export class Stack3D {
             renderer.outputColorSpace = THREE.SRGBColorSpace;
             renderer.toneMapping = THREE.ACESFilmicToneMapping;
             renderer.toneMappingExposure = 1.0;
+
+            resolve();
+        });
+
     }
 
     private _initScene(): THREE.Scene {
