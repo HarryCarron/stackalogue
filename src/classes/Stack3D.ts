@@ -1,21 +1,24 @@
 import * as THREE from 'three';
 import { EXRLoader, GLTFLoader, OrbitControls, type GLTF } from 'three/examples/jsm/Addons.js';
 
-export const Stack3DInteruption = {
-    interuptionCooldown: 'INTERRUPTION_COOLDOWN',
-    returnToAutoInteruptionOriginStart: 'RETURN_TO_AUTO_INTERUPTION_ORIGIN_START',
-    returnToAutoInteruptionOriginEnd: 'RETURN_TO_AUTO_INTERUPTION_ORIGIN_END',
+export enum StandardStack3DState {
+    idle = 'IDLE',
+    loading = 'LOADING',
+    failed = 'FAILED',
+    autoOrbit = 'AUTO_ORBIT',
+    manOrbit = 'MANUAL_ORBIT',
+    interuption = 'INTERRUPTION',
 }
 
-export const Stack3DState = {
-    idle: 'IDLE',
-    loading: 'LOADING',
-    failed: 'FAILED',
-    autoOrbit: 'AUTO_ORBIT',
-    manOrbit: 'MANUAL_ORBIT',
-    interuption: 'INTERRUPTION',
-    ...Stack3DInteruption
+export enum Stack3DInteruption {
+    interuptionCooldown = 'INTERRUPTION_COOLDOWN',
+    returnToAutoInteruptionOriginStart = 'RETURN_TO_AUTO_INTERUPTION_ORIGIN_START',
+    returnToAutoInteruptionOriginEnd = 'RETURN_TO_AUTO_INTERUPTION_ORIGIN_END',
 }
+
+type Stack3DState = StandardStack3DState | Stack3DInteruption;
+
+
 
 const INTERRUPTION_COOLDOWN = 3000;
 
@@ -27,17 +30,15 @@ export class Stack3D {
 
     private readonly _enableDevMode: boolean;
 
-    stateChangeHandlers: ((state: typeof Stack3DState) => void)[] = [];
+    stateChangeHandlers: ((state: Stack3DState) => void)[] = [];
 
     constructor(id: string, canvas: HTMLCanvasElement, enableDevMode: boolean = false) {
         this._id = id;
         this._canvas = canvas;
         this._enableDevMode = enableDevMode;
-
-        this._init();
     }
 
-    private _init(): void {
+    init(): void {
         const scene = this._initScene();
         const camera = this._initCamera();
         const renderer = this._initRenderer();
@@ -48,7 +49,6 @@ export class Stack3D {
         this._initGLTF(scene);
 
         this._animate(renderer, scene, camera, orbital);
-        
     }
 
     private _animate(
@@ -56,7 +56,7 @@ export class Stack3D {
         scene: THREE.Scene,
         camera: THREE.PerspectiveCamera,
         orbital: OrbitControls): void {
-            
+
         function turn() {
           requestAnimationFrame(turn);
           orbital.update();
@@ -152,15 +152,15 @@ export class Stack3D {
         return camera;
     }
 
-    registerStateChangeHandler(handler: (state: typeof Stack3DState) => void): void {
+    registerStateChangeHandler(handler: (state: Stack3DState) => void): void {
         this.stateChangeHandlers.push(handler);
     }
 
-    registerLoadingStateHandler(handler: (state: typeof Stack3DState) => void): void {
+    registerLoadingStateHandler(handler: (state: Stack3DState) => void): void {
         this.stateChangeHandlers.push(handler);
     }
 
-    private _notifyStateChange(state: typeof Stack3DState): void {
+    private _notifyStateChange(state: Stack3DState): void {
         this.stateChangeHandlers.forEach(handler => handler(state));
     }
 
